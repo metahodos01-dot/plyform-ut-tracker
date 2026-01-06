@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 // FIREBASE CONFIGURATION - SOSTITUISCI CON I TUOI VALORI
 // =============================================================================
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyB2gX10LurDdR8Pwlb0RpPLnjEVft58fBk",
-  authDomain: "plyform-ut-tracker.firebaseapp.com",
-  projectId: "plyform-ut-tracker",
-  storageBucket: "plyform-ut-tracker.firebasestorage.app",
-  messagingSenderId: "380531712994",
-  appId: "1:380531712994:web:8bad3dca62a9fecb9e8fbb",
-  measurementId: "G-WDHV2SZGJM"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 const COLLECTION_NAME = "projects";
@@ -28,12 +28,12 @@ let isFirebaseInitialized = false;
 // Initialize Firebase
 const initializeFirebase = async () => {
   if (isFirebaseInitialized) return true;
-  
+
   try {
     // Dynamic import Firebase modules
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-    
+
     firebaseApp = initializeApp(FIREBASE_CONFIG);
     firestoreDb = getFirestore(firebaseApp);
     isFirebaseInitialized = true;
@@ -51,7 +51,7 @@ const saveToFirestore = async (data) => {
     const initialized = await initializeFirebase();
     if (!initialized) return false;
   }
-  
+
   try {
     const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
@@ -73,12 +73,12 @@ const loadFromFirestore = async () => {
     const initialized = await initializeFirebase();
     if (!initialized) return null;
   }
-  
+
   try {
     const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       console.log('✅ Dati caricati da Firebase');
       return docSnap.data();
@@ -95,13 +95,13 @@ const loadFromFirestore = async () => {
 const subscribeToUpdates = async (callback) => {
   if (!isFirebaseInitialized) {
     const initialized = await initializeFirebase();
-    if (!initialized) return () => {};
+    if (!initialized) return () => { };
   }
-  
+
   try {
     const { doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
-    
+
     return onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         callback(docSnap.data());
@@ -109,7 +109,7 @@ const subscribeToUpdates = async (callback) => {
     });
   } catch (error) {
     console.error('❌ Errore subscription:', error);
-    return () => {};
+    return () => { };
   }
 };
 
@@ -136,7 +136,7 @@ const initialProjectData = {
       rootCause: "Cultura pregressa orientata all'infallibilità, assenza di riferimenti chiari in reparto"
     },
     {
-      id: "N2", 
+      id: "N2",
       title: "Gestione Ambigua NADCAP",
       description: "Disallineamento tra responsabilità formale (UT) e operativa (Ramponi/Produzione). Rischio NC grave = perdita certificazione.",
       severity: "critical",
@@ -395,9 +395,9 @@ const ConnectionStatus = ({ status, onRetry }) => {
     saving: { color: 'var(--accent-blue)', text: 'Salvataggio...', icon: '↑' },
     saved: { color: 'var(--accent-green)', text: 'Salvato', icon: '✓' }
   };
-  
+
   const config = statusConfig[status] || statusConfig.offline;
-  
+
   return (
     <div style={{
       display: 'flex',
@@ -449,13 +449,13 @@ export default function PlyformProjectTracker() {
   useEffect(() => {
     const init = async () => {
       setConnectionStatus('connecting');
-      
+
       const initialized = await initializeFirebase();
       if (!initialized) {
         setConnectionStatus('error');
         return;
       }
-      
+
       const savedData = await loadFromFirestore();
       if (savedData) {
         setData(savedData);
@@ -464,18 +464,18 @@ export default function PlyformProjectTracker() {
         // Save initial data if nothing exists
         await saveToFirestore(initialProjectData);
       }
-      
+
       setConnectionStatus('connected');
-      
+
       // Subscribe to real-time updates
       const unsubscribe = await subscribeToUpdates((newData) => {
         setData(newData);
         setLastSaved(newData.lastUpdated);
       });
-      
+
       return () => unsubscribe();
     };
-    
+
     init();
   }, []);
 
@@ -483,9 +483,9 @@ export default function PlyformProjectTracker() {
   const saveData = async (newData) => {
     setData(newData);
     setConnectionStatus('saving');
-    
+
     const success = await saveToFirestore(newData);
-    
+
     if (success) {
       setConnectionStatus('saved');
       setLastSaved(new Date().toISOString());
@@ -514,21 +514,21 @@ export default function PlyformProjectTracker() {
     const phase = newData.phases.find(p => p.id === phaseId);
     const task = phase.tasks.find(t => t.id === taskId);
     task.status = newStatus;
-    
+
     const allCompleted = phase.tasks.every(t => t.status === 'completed');
     const anyInProgress = phase.tasks.some(t => t.status === 'in-progress');
     phase.status = allCompleted ? 'completed' : anyInProgress ? 'in-progress' : 'not-started';
-    
+
     newData.activityLog.unshift({
       timestamp: new Date().toISOString(),
       type: 'task_update',
       message: `Task "${task.name}" → ${newStatus}`
     });
-    
+
     if (newData.activityLog.length > 50) {
       newData.activityLog = newData.activityLog.slice(0, 50);
     }
-    
+
     saveData(newData);
   };
 
@@ -537,13 +537,13 @@ export default function PlyformProjectTracker() {
     const newData = { ...data };
     const obj = newData.project.objectives2026.find(o => o.id === objId);
     obj.status = newStatus;
-    
+
     newData.activityLog.unshift({
       timestamp: new Date().toISOString(),
       type: 'objective_update',
       message: `Obiettivo "${obj.name}" → ${newStatus}`
     });
-    
+
     saveData(newData);
   };
 
@@ -552,13 +552,13 @@ export default function PlyformProjectTracker() {
     const newData = { ...data };
     const kpi = newData.kpis[category].find(k => k.id === kpiId);
     kpi.current = value;
-    
+
     newData.activityLog.unshift({
       timestamp: new Date().toISOString(),
       type: 'kpi_update',
       message: `KPI "${kpi.name}" aggiornato: ${value}`
     });
-    
+
     saveData(newData);
   };
 
@@ -586,7 +586,7 @@ export default function PlyformProjectTracker() {
   // =============================================================================
   // RENDER SECTIONS
   // =============================================================================
-  
+
   const renderDashboard = () => (
     <div style={{ display: 'grid', gap: '20px' }}>
       {/* Stats Grid */}
@@ -597,7 +597,7 @@ export default function PlyformProjectTracker() {
           <ProgressBar value={progress.completed} max={progress.total} />
           <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '8px' }}>{progress.completed}/{progress.total} task</p>
         </div>
-        
+
         <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '20px' }}>
           <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Giornate</p>
           <p style={{ color: 'var(--text-primary)', fontSize: '32px', fontWeight: 700 }}>{daysUsed.toFixed(1)}<span style={{ fontSize: '18px', color: 'var(--text-muted)' }}>/{data.project.totalDays}</span></p>
@@ -629,12 +629,12 @@ export default function PlyformProjectTracker() {
               borderLeft: `3px solid ${obj.status === 'at-risk' ? 'var(--accent-red)' : obj.status === 'completed' ? 'var(--accent-green)' : 'var(--accent-orange)'}`,
               cursor: 'pointer'
             }}
-            onClick={() => {
-              const statuses = ['pending', 'in-progress', 'at-risk', 'completed'];
-              const currentIdx = statuses.indexOf(obj.status);
-              const nextStatus = statuses[(currentIdx + 1) % statuses.length];
-              updateObjectiveStatus(obj.id, nextStatus);
-            }}>
+              onClick={() => {
+                const statuses = ['pending', 'in-progress', 'at-risk', 'completed'];
+                const currentIdx = statuses.indexOf(obj.status);
+                const nextStatus = statuses[(currentIdx + 1) % statuses.length];
+                updateObjectiveStatus(obj.id, nextStatus);
+              }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                 <h4 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600 }}>{obj.name}</h4>
                 <Badge type={obj.status}>{obj.status}</Badge>
@@ -830,7 +830,7 @@ export default function PlyformProjectTracker() {
           }>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <p style={{ color: 'var(--text-secondary)', fontSize: '13px', lineHeight: 1.6 }}>{solution.description}</p>
-              
+
               <div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Risolve</p>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -876,7 +876,7 @@ export default function PlyformProjectTracker() {
 
       {data.phases.map((phase, phaseIdx) => {
         const completedTasks = phase.tasks.filter(t => t.status === 'completed').length;
-        
+
         return (
           <Card key={phase.id} title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
