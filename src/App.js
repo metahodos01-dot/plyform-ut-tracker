@@ -82,7 +82,117 @@ export default function PlyformProjectTracker() {
     }
   };
 
-  // Specific Updaters
+  // --- CRUD Operations for Needs ---
+
+  const addNeed = (needData) => {
+    const newNeed = {
+      id: `N${data.needs.length + 1}`,
+      ...needData,
+      status: 'pending',
+      severity: needData.severity || 'medium'
+    };
+    const newData = {
+      ...data,
+      needs: [...data.needs, newNeed],
+      activityLog: [{
+        type: 'need_update',
+        message: `Nuova esigenza creata: ${newNeed.title}`,
+        timestamp: new Date().toISOString()
+      }, ...data.activityLog]
+    };
+    updateData(newData);
+  };
+
+  const updateNeed = (id, updatedFields) => {
+    const newData = {
+      ...data,
+      needs: data.needs.map(need => need.id === id ? { ...need, ...updatedFields } : need),
+      activityLog: [{
+        type: 'need_update',
+        message: `Esigenza aggiornata: ${id}`,
+        timestamp: new Date().toISOString()
+      }, ...data.activityLog]
+    };
+    updateData(newData);
+  };
+
+  const deleteNeed = (id) => {
+    // Also remove from solutions? For now just remove need.
+    const newData = {
+      ...data,
+      needs: data.needs.filter(need => need.id !== id),
+      activityLog: [{
+        type: 'need_update',
+        message: `Esigenza eliminata: ${id}`,
+        timestamp: new Date().toISOString()
+      }, ...data.activityLog]
+    };
+    if (selectedNeed?.id === id) setSelectedNeed(null);
+    updateData(newData);
+  };
+
+  const promoteNeedToObjective = (needId) => {
+    const needToPromote = data.needs.find(n => n.id === needId);
+    if (!needToPromote) return;
+
+    // 1. Update Need Status
+    const updatedNeeds = data.needs.map(n => n.id === needId ? { ...n, status: 'confirmed' } : n);
+
+    // 2. Create New Objective
+    const newObjective = {
+      id: data.project.objectives2026.length + 1,
+      name: `Risoluzione: ${needToPromote.title}`,
+      deadline: "TBD",
+      status: "pending",
+      originNeedId: needId
+    };
+
+    const newData = {
+      ...data,
+      needs: updatedNeeds,
+      project: {
+        ...data.project,
+        objectives2026: [...data.project.objectives2026, newObjective]
+      },
+      activityLog: [{
+        type: 'objective_update',
+        message: `Esigenza ${needId} promossa a Obiettivo`,
+        timestamp: new Date().toISOString()
+      }, ...data.activityLog]
+    };
+    updateData(newData);
+  };
+
+  // --- Team Management ---
+  const addTeamMember = (member) => {
+    const newMember = {
+      id: `TM${(data.project.team?.length || 0) + 1}`,
+      ...member
+    };
+    const newData = {
+      ...data,
+      project: {
+        ...data.project,
+        team: [...(data.project.team || []), newMember]
+      }
+    };
+    updateData(newData);
+  };
+
+  const deleteTeamMember = (id) => {
+    const newData = {
+      ...data,
+      project: {
+        ...data.project,
+        team: data.project.team.filter(m => m.id !== id)
+      }
+    };
+    updateData(newData);
+  };
+
+
+  // --- Existing Updaters ---
+
   const updateObjectiveStatus = (id, status) => {
     const newData = {
       ...data,
@@ -219,8 +329,23 @@ export default function PlyformProjectTracker() {
 
       {/* Main */}
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
-        {activeTab === 'dashboard' && <DashboardView data={data} updateObjectiveStatus={updateObjectiveStatus} />}
-        {activeTab === 'needs' && <NeedsView data={data} selectedNeed={selectedNeed} setSelectedNeed={setSelectedNeed} />}
+        {activeTab === 'dashboard' && <DashboardView
+          data={data}
+          updateObjectiveStatus={updateObjectiveStatus}
+          addTeamMember={addTeamMember}
+          deleteTeamMember={deleteTeamMember}
+        />}
+        {activeTab === 'needs' &&
+          <NeedsView
+            data={data}
+            selectedNeed={selectedNeed}
+            setSelectedNeed={setSelectedNeed}
+            addNeed={addNeed}
+            updateNeed={updateNeed}
+            deleteNeed={deleteNeed}
+            promoteNeed={promoteNeedToObjective}
+          />
+        }
         {activeTab === 'solutions' && <SolutionsView data={data} />}
         {activeTab === 'execution' && <ExecutionView data={data} updateTaskStatus={updateTaskStatus} />}
         {activeTab === 'kpis' && <KPIsView data={data} updateKPIValue={updateKPIValue} />}

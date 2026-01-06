@@ -34,6 +34,8 @@ code {
   --accent-red: #EF4444;
   --accent-purple: #8B5CF6;
   --accent-ai: #10a37f;
+  --accent-banana: #FFD700;
+  --accent-banana-dim: #998100;
 }
 
 @keyframes pulse {

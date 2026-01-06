@@ -7,6 +7,11 @@ export const initialProjectData = {
             { id: 1, name: "Riqualificazione NADCAP", deadline: "Luglio 2026", status: "at-risk" },
             { id: 2, name: "Certificazione Part 21", deadline: "Ottobre 2026", status: "pending" },
             { id: 3, name: "Reingegnerizzazione Linea Piaggio", deadline: "Q4 2026", status: "pending" }
+        ],
+        team: [
+            { id: "TM1", name: "Luca Ceriani", role: "Technical Director" },
+            { id: "TM2", name: "Ramponi", role: "Production Manager" },
+            { id: "TM3", name: "Leonardo", role: "Consultant" }
         ]
     },
     needs: [
@@ -15,6 +20,7 @@ export const initialProjectData = {
             title: "Flusso Informativo Sbilanciato",
             description: "Comunicazione unidirezionale UT→Produzione. Manca feedback strutturato e lesson learned dal campo.",
             severity: "critical",
+            status: "confirmed",
             rootCause: "Cultura pregressa orientata all'infallibilità, assenza di riferimenti chiari in reparto"
         },
         {
@@ -22,6 +28,7 @@ export const initialProjectData = {
             title: "Gestione Ambigua NADCAP",
             description: "Disallineamento tra responsabilità formale (UT) e operativa (Ramponi/Produzione). Rischio NC grave = perdita certificazione.",
             severity: "critical",
+            status: "confirmed",
             rootCause: "Modello a compartimenti stagni, mancata definizione ruoli"
         },
         {
@@ -29,6 +36,7 @@ export const initialProjectData = {
             title: "Carenza Coesione Team",
             description: "UT percepito come unico ente non integrato. Limitata autonomia, scarsa condivisione informazioni, visibilità ridotta su obiettivi.",
             severity: "high",
+            status: "confirmed",
             rootCause: "Gestione precedente a compartimenti stagni, personale esecutore senza deleghe"
         },
         {
@@ -36,6 +44,7 @@ export const initialProjectData = {
             title: "Assenza KPI e Metriche",
             description: "Nessuna percezione oggettiva delle performance, avanzamento lavori non tracciato, impatto su marginalità non misurato.",
             severity: "medium",
+            status: "pending",
             rootCause: "Disconnessione tra attività quotidiane e indicatori strategici"
         }
     ],
@@ -91,7 +100,7 @@ export const initialProjectData = {
             solutionIds: ["S1"],
             tasks: [
                 { id: "T2.1", name: "Formazione team su metodologie Agile", hours: 8, status: "pending", notes: "" },
-                { id: "T2.2", name: "Setup board Kanban/Scrum", hours: 4, status: "pending", notes: "" },
+                { id: "T2.2", name: "setup board Kanban/Scrum", hours: 4, status: "pending", notes: "" },
                 { id: "T2.3", name: "Sessioni pratiche su carichi correnti", hours: 8, status: "pending", notes: "" },
                 { id: "T2.4", name: "Definizione cerimonie (daily, retrospettive)", hours: 4, status: "pending", notes: "" }
             ]
