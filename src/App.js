@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 // =============================================================================
 // FIREBASE CONFIGURATION - SOSTITUISCI CON I TUOI VALORI
 // =============================================================================
+// Firebase Configuration
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "firebase/firestore";
+
 const FIREBASE_CONFIG = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -16,44 +20,13 @@ const FIREBASE_CONFIG = {
 const COLLECTION_NAME = "projects";
 const DOCUMENT_ID = "plyform-ut-transformation";
 
-// =============================================================================
-// FIREBASE INTEGRATION LAYER
-// =============================================================================
-
-// Firebase state
-let firebaseApp = null;
-let firestoreDb = null;
-let isFirebaseInitialized = false;
-
 // Initialize Firebase
-const initializeFirebase = async () => {
-  if (isFirebaseInitialized) return true;
-
-  try {
-    // Dynamic import Firebase modules
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-
-    firebaseApp = initializeApp(FIREBASE_CONFIG);
-    firestoreDb = getFirestore(firebaseApp);
-    isFirebaseInitialized = true;
-    console.log('✅ Firebase inizializzato con successo');
-    return true;
-  } catch (error) {
-    console.error('❌ Errore inizializzazione Firebase:', error);
-    return false;
-  }
-};
+const firebaseApp = initializeApp(FIREBASE_CONFIG);
+const firestoreDb = getFirestore(firebaseApp);
 
 // Save data to Firestore
 const saveToFirestore = async (data) => {
-  if (!isFirebaseInitialized) {
-    const initialized = await initializeFirebase();
-    if (!initialized) return false;
-  }
-
   try {
-    const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
     await setDoc(docRef, {
       ...data,
@@ -69,13 +42,7 @@ const saveToFirestore = async (data) => {
 
 // Load data from Firestore
 const loadFromFirestore = async () => {
-  if (!isFirebaseInitialized) {
-    const initialized = await initializeFirebase();
-    if (!initialized) return null;
-  }
-
   try {
-    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
     const docSnap = await getDoc(docRef);
 
@@ -92,16 +59,9 @@ const loadFromFirestore = async () => {
 };
 
 // Subscribe to real-time updates
-const subscribeToUpdates = async (callback) => {
-  if (!isFirebaseInitialized) {
-    const initialized = await initializeFirebase();
-    if (!initialized) return () => { };
-  }
-
+const subscribeToUpdates = (callback) => {
   try {
-    const { doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const docRef = doc(firestoreDb, COLLECTION_NAME, DOCUMENT_ID);
-
     return onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         callback(docSnap.data());
@@ -650,30 +610,31 @@ export default function PlyformProjectTracker() {
     const init = async () => {
       setConnectionStatus('connecting');
 
-      const initialized = await initializeFirebase();
-      if (!initialized) {
-        setConnectionStatus('error');
-        return;
-      }
-
+      // Static initialization is already done
       const savedData = await loadFromFirestore();
       if (savedData) {
         setData(savedData);
         setLastSaved(savedData.lastUpdated);
+        setConnectionStatus('connected');
       } else {
         // Save initial data if nothing exists
-        await saveToFirestore(initialProjectData);
+        const success = await saveToFirestore(initialProjectData);
+        if (success) {
+          setConnectionStatus('connected');
+        } else {
+          setConnectionStatus('error');
+        }
       }
 
-      setConnectionStatus('connected');
-
       // Subscribe to real-time updates
-      const unsubscribe = await subscribeToUpdates((newData) => {
+      const unsubscribe = subscribeToUpdates((newData) => {
         setData(newData);
         setLastSaved(newData.lastUpdated);
       });
 
-      return () => unsubscribe();
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
     };
 
     init();
@@ -698,10 +659,9 @@ export default function PlyformProjectTracker() {
   // Retry connection
   const retryConnection = async () => {
     setConnectionStatus('connecting');
-    const initialized = await initializeFirebase();
-    if (initialized) {
-      const savedData = await loadFromFirestore();
-      if (savedData) setData(savedData);
+    const savedData = await loadFromFirestore();
+    if (savedData) {
+      setData(savedData);
       setConnectionStatus('connected');
     } else {
       setConnectionStatus('error');
