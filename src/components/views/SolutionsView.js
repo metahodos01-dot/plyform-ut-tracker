@@ -50,17 +50,19 @@ const SolutionsView = ({ data }) => {
                                 </div>
                             </div>
 
-                            <div>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Benefici</p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                    {solution.benefits.map((benefit, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{ color: 'var(--accent-green)', fontSize: '12px' }}>✓</span>
-                                            <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{benefit}</span>
-                                        </div>
-                                    ))}
+                            {solution.benefits && solution.benefits.length > 0 && (
+                                <div>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Benefici</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        {solution.benefits.map((benefit, idx) => (
+                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ color: 'var(--accent-green)', fontSize: '12px' }}>✓</span>
+                                                <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{benefit}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </Card>
                 ))}

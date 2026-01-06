@@ -3,7 +3,7 @@ import Card from '../common/Card';
 import Badge from '../common/Badge';
 import ProgressBar from '../common/ProgressBar';
 
-const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamMember }) => {
+const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamMember, onGenerateAI }) => {
     const [newMember, setNewMember] = useState({ name: '', role: '' });
 
     const handleAddMember = () => {
@@ -84,20 +84,64 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                                     backgroundColor: 'var(--bg-tertiary)',
                                     borderRadius: '8px',
                                     borderLeft: `3px solid ${obj.status === 'at-risk' ? 'var(--accent-red)' : obj.status === 'completed' ? 'var(--accent-green)' : 'var(--accent-orange)'}`,
-                                    cursor: 'pointer'
-                                }}
-                                    onClick={() => {
-                                        const statuses = ['pending', 'in-progress', 'at-risk', 'completed'];
-                                        const currentIdx = statuses.indexOf(obj.status);
-                                        const nextStatus = statuses[(currentIdx + 1) % statuses.length];
-                                        updateObjectiveStatus(obj.id, nextStatus);
-                                    }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                                        <h4 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600 }}>{obj.name}</h4>
-                                        <Badge type={obj.status}>{obj.status}</Badge>
+                                    display: 'flex', flexDirection: 'column', gap: '8px'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                        <h4 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600, margin: 0 }}>{obj.name}</h4>
+                                        <Badge type={obj.status} onClick={() => {
+                                            const statuses = ['pending', 'in-progress', 'at-risk', 'completed'];
+                                            const nextStatus = statuses[(statuses.indexOf(obj.status) + 1) % statuses.length];
+                                            updateObjectiveStatus(obj.id, nextStatus);
+                                        }}>{obj.status}</Badge>
                                     </div>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic', marginBottom: '6px' }}>{obj.description}</p>
-                                    <p style={{ color: 'var(--text-primary)', fontSize: '12px', fontWeight: 'bold' }}>Scadenza: {obj.deadline}</p>
+
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic', margin: 0 }}>{obj.description}</p>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                        <div>📅 <strong>Scadenza:</strong> {obj.deadline}</div>
+                                        <div>🎯 <strong>Target:</strong> {obj.target}</div>
+                                        <div>📊 <strong>KPI:</strong> {obj.kpi}</div>
+                                        <div>👥 <strong>Risorse:</strong> {obj.resources?.join(', ') || 'N/A'}</div>
+                                    </div>
+
+                                    {obj.linkedNeedId && (
+                                        <div style={{ fontSize: '10px', color: 'var(--accent-blue)', backgroundColor: 'var(--accent-blue-dim)', padding: '4px 6px', borderRadius: '4px', alignSelf: 'start' }}>
+                                            🔗 Esigenza: {obj.linkedNeedId}
+                                        </div>
+                                    )}
+
+                                    {/* AI Task Generation */}
+                                    <button
+                                        onClick={async () => {
+                                            // Handle AI generation here or pass up to App.js via a prop
+                                            // For now, let's assume we pass a handler or just do it inline if we had the service.
+                                            // Since DashboardView doesn't have the AI service directly, we should ideally trigger this from App.js or passing the function.
+                                            // User request: "AI aiuta per ogni obiettivo a creare i task"
+                                            // I need to add 'generateTasksForObjective' to App.js and pass it down.
+                                            // I will fix the props passed to DashboardView in App.js in the next step to include `onGenerateTasks`.
+                                            if (window.confirm(`Generare task con AI per "${obj.name}"?`)) {
+                                                // Placeholder alert until App.js connection is verified
+                                                // window.alert("Funzionalità in fase di collegamento...");
+                                                if (onGenerateAI) {
+                                                    onGenerateAI(obj);
+                                                }
+                                            }
+                                        }}
+                                        style={{
+                                            marginTop: '8px',
+                                            padding: '8px',
+                                            backgroundColor: 'var(--bg-secondary)',
+                                            border: '1px solid var(--accent-purple)',
+                                            color: 'var(--accent-purple)',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontSize: '11px',
+                                            fontWeight: 600,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                                        }}
+                                    >
+                                        ✨ Genera Task con AI
+                                    </button>
                                 </div>
                             ))}
                         </div>

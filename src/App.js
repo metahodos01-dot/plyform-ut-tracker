@@ -4,6 +4,7 @@ import './index.css';
 // Data & Services
 import { initialProjectData } from './data/initialData';
 import { saveToFirestore, loadFromFirestore, subscribeToUpdates } from './services/firebaseService';
+import { analyzeProjectWithAI, generateTasksFromAI } from './services/aiService';
 
 // Common Components
 import ConnectionStatus from './components/common/ConnectionStatus';
@@ -131,36 +132,66 @@ export default function PlyformProjectTracker() {
     updateData(newData);
   };
 
-  const promoteNeedToObjective = (needId) => {
-    const needToPromote = data.needs.find(n => n.id === needId);
-    if (!needToPromote) return;
-
-    // 1. Update Need Status
-    const updatedNeeds = data.needs.map(n => n.id === needId ? { ...n, status: 'confirmed' } : n);
-
-    // 2. Create New Objective
+  const promoteNeedToObjective = async (need) => {
+    // 1. Create new Objective based on Need
     const newObjective = {
-      id: data.project.objectives2026.length + 1,
-      name: `Risoluzione: ${needToPromote.title}`,
-      deadline: "TBD",
+      id: Date.now(), // simple ID generation
+      name: need.title,
+      deadline: "TBD", // To be set by user
       status: "pending",
-      originNeedId: needId
+      description: need.description,
+      linkedNeedId: need.id,
+      kpi: "N/A",
+      target: "N/A",
+      resources: [], // Array of team member IDs
+      tasks: [] // Container for granular tasks
     };
+
+    // 2. Update status of the Need
+    const updatedNeeds = data.needs.map(n =>
+      n.id === need.id ? { ...n, status: 'confirmed' } : n
+    );
+
+    // 3. Add to Objectives list
+    const updatedObjectives = [...data.project.objectives2026, newObjective];
 
     const newData = {
       ...data,
       needs: updatedNeeds,
       project: {
         ...data.project,
-        objectives2026: [...data.project.objectives2026, newObjective]
       },
       activityLog: [{
         type: 'objective_update',
         message: `Esigenza ${needId} promossa a Obiettivo`,
+        message: `Esigenza ${need.id} promossa a Obiettivo`,
         timestamp: new Date().toISOString()
       }, ...data.activityLog]
     };
     updateData(newData);
+  };
+
+  const updateObjective = async (updatedObjective) => {
+    const updatedObjectives = data.project.objectives2026.map(obj =>
+      obj.id === updatedObjective.id ? updatedObjective : obj
+    );
+    await updateData({
+      ...data,
+      project: { ...data.project, objectives2026: updatedObjectives }
+    });
+  };
+
+  const addTasksToObjective = async (objectiveId, newTasks) => {
+    const objective = data.project.objectives2026.find(o => o.id === objectiveId);
+    if (!objective) return;
+
+    const currentTasks = objective.tasks || [];
+    const updatedObjective = {
+      ...objective,
+      tasks: [...currentTasks, ...newTasks]
+    };
+
+    await updateObjective(updatedObjective);
   };
 
   // --- Team Management ---
@@ -194,6 +225,26 @@ export default function PlyformProjectTracker() {
     if (window.confirm("Attenzione: Questo sovrascriverà tutti i dati correnti con il Piano Strategico iniziale. Continuare?")) {
       await updateData(initialProjectData);
       alert("Piano Strategico caricato con successo!");
+    }
+  };
+
+  const handleGenerateAI = async (objective) => {
+    try {
+      const newTasks = await generateTasksFromAI(objective, data.project.team || []);
+      if (newTasks && newTasks.length > 0) {
+        // Assign IDs to new tasks
+        const tasksWithIds = newTasks.map((t, idx) => ({
+          id: `T-${objective.id}-${Date.now()}-${idx}`,
+          status: 'pending',
+          ...t
+        }));
+        await addTasksToObjective(objective.id, tasksWithIds);
+        alert(`Generati ${newTasks.length} task con successo!`);
+      } else {
+        alert("L'AI non ha generato task validi.");
+      }
+    } catch (error) {
+      alert("Errore generazione AI: " + error.message);
     }
   };
 
@@ -337,9 +388,12 @@ export default function PlyformProjectTracker() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
         {activeTab === 'dashboard' && <DashboardView
           data={data}
-          updateObjectiveStatus={updateObjectiveStatus}
+          team={data.project.team}
           addTeamMember={addTeamMember}
-          deleteTeamMember={deleteTeamMember}
+          removeTeamMember={deleteTeamMember}
+          updateObjective={updateObjective}
+          addTasksToObjective={addTasksToObjective}
+          onGenerateAI={handleGenerateAI}
         />}
         {activeTab === 'needs' &&
           <NeedsView

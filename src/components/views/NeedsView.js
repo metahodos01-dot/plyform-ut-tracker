@@ -165,8 +165,8 @@ const NeedsView = ({ data, selectedNeed, setSelectedNeed, addNeed, updateNeed, d
                         headerAction={
                             !isEditing && (
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => handleStartEdit(selectedNeed)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}>✏️</button>
-                                    <button onClick={() => deleteNeed(selectedNeed.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}>🗑️</button>
+                                    <button onClick={() => handleStartEdit(selectedNeed)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }} title="Modifica">✏️</button>
+                                    <button onClick={() => deleteNeed(selectedNeed.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }} title="Elimina">🗑️</button>
                                 </div>
                             )
                         }
@@ -186,6 +186,7 @@ const NeedsView = ({ data, selectedNeed, setSelectedNeed, addNeed, updateNeed, d
                                 <textarea
                                     value={editForm.rootCause || ''}
                                     onChange={e => setEditForm({ ...editForm, rootCause: e.target.value })}
+                                    placeholder="Causa Radice"
                                     style={{ padding: '10px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: 'white', minHeight: '60px' }}
                                 />
                                 <select
@@ -206,9 +207,14 @@ const NeedsView = ({ data, selectedNeed, setSelectedNeed, addNeed, updateNeed, d
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Descrizione</p>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>{selectedNeed.description}</p>
+                                </div>
+
+                                <div>
                                     <p style={{ color: 'var(--text-muted)', fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Causa Radice</p>
                                     <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.7, padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', borderLeft: '3px solid var(--accent-orange)' }}>
-                                        {selectedNeed.rootCause}
+                                        {selectedNeed.rootCause || "Nessuna causa radice specificata."}
                                     </p>
                                 </div>
 
