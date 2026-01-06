@@ -1,154 +1,152 @@
 export const initialProjectData = {
     project: {
-        name: "Trasformazione Ufficio Tecnico Plyform",
-        totalDays: 10,
-        startDate: "2025-01-13",
-        objectives2026: [
-            { id: 1, name: "Riqualificazione NADCAP", deadline: "Luglio 2026", status: "at-risk" },
-            { id: 2, name: "Certificazione Part 21", deadline: "Ottobre 2026", status: "pending" },
-            { id: 3, name: "Reingegnerizzazione Linea Piaggio", deadline: "Q4 2026", status: "pending" }
-        ],
+        name: "Trasformazione UT Plyform",
+        vision: "Trasformare l'Ufficio Tecnico da Centro di Costo a Motore di Innovazione",
+        manager: "Leonardo",
+        startDate: "2025-04-01",
+        totalDays: 280, // Approx until end of 2025/early 2026
+        progress: 15,
         team: [
-            { id: "TM1", name: "Luca Ceriani", role: "Technical Director" },
-            { id: "TM2", name: "Ramponi", role: "Production Manager" },
-            { id: "TM3", name: "Leonardo", role: "Consultant" }
+            { id: 'TM1', name: 'Leonardo', role: 'Executive Sponsor' },
+            { id: 'TM2', name: 'Ramponi', role: 'Responsabile Produzione' },
+            { id: 'TM3', name: 'Team UT', role: 'Technical Execution' }
+        ],
+        objectives2026: [
+            {
+                id: 1,
+                name: "Rinnovo NADCAP",
+                deadline: "Luglio 2026",
+                status: "at-risk",
+                description: "Ottenere il rinnovo della certificazione. Zero Non Conformità gravi ammesse."
+            },
+            {
+                id: 2,
+                name: "Certificazione Part 21",
+                deadline: "Ottobre 2026",
+                status: "pending",
+                description: "Nuova certificazione critica per il settore Aerospace."
+            },
+            {
+                id: 3,
+                name: "Reingegnerizzazione Linea Piaggio",
+                deadline: "Gennaio 2026",
+                status: "pending",
+                description: "Presa in carico e ottimizzazione asset tattico biennio."
+            }
         ]
     },
+
     needs: [
         {
-            id: "N1",
-            title: "Flusso Informativo Sbilanciato",
-            description: "Comunicazione unidirezionale UT→Produzione. Manca feedback strutturato e lesson learned dal campo.",
+            id: 'N1',
+            title: "Disallineamento Resp. NADCAP",
+            description: "UT è garante formale, ma la gestione operativa è in Produzione (Ramponi). Rischio elevato di NC.",
             severity: "critical",
-            status: "confirmed",
-            rootCause: "Cultura pregressa orientata all'infallibilità, assenza di riferimenti chiari in reparto"
+            rootCause: "Cultura a compartimenti stagni e gestione storica non integrata.",
+            status: "pending"
         },
         {
-            id: "N2",
-            title: "Gestione Ambigua NADCAP",
-            description: "Disallineamento tra responsabilità formale (UT) e operativa (Ramponi/Produzione). Rischio NC grave = perdita certificazione.",
-            severity: "critical",
-            status: "confirmed",
-            rootCause: "Modello a compartimenti stagni, mancata definizione ruoli"
-        },
-        {
-            id: "N3",
-            title: "Carenza Coesione Team",
-            description: "UT percepito come unico ente non integrato. Limitata autonomia, scarsa condivisione informazioni, visibilità ridotta su obiettivi.",
+            id: 'N2',
+            title: "Flusso Comunicazione Unidirezionale",
+            description: "UT trasmette a Produzione senza feedback strutturato ('Lesson Learned').",
             severity: "high",
-            status: "confirmed",
-            rootCause: "Gestione precedente a compartimenti stagni, personale esecutore senza deleghe"
+            rootCause: "Mancanza di canali ufficiali di ritorno e cultura della 'infallibilità'.",
+            status: "pending"
         },
         {
-            id: "N4",
-            title: "Assenza KPI e Metriche",
-            description: "Nessuna percezione oggettiva delle performance, avanzamento lavori non tracciato, impatto su marginalità non misurato.",
+            id: 'N3',
+            title: "Isolamento Operativo",
+            description: "UT percepito come corpo estraneo o mero esecutore di compiti ('Build to Print').",
             severity: "medium",
-            status: "pending",
-            rootCause: "Disconnessione tra attività quotidiane e indicatori strategici"
+            rootCause: "Mancata integrazione nei tavoli decisionali operativi.",
+            status: "pending"
         }
     ],
+
     solutions: [
         {
-            id: "S1",
-            needIds: ["N3", "N4"],
-            title: "Framework Agile per l'UT",
-            description: "Introdurre metodologie agili per gestione progetti, prioritizzazione e miglioramento processi interni.",
-            benefits: ["Reattività aumentata", "Autonomia decisionale", "Orientamento obiettivi strategici"]
+            id: 'S1',
+            title: "Framework Agile UT",
+            description: "Adozione metodologie agili per gestione carichi e prioritizzazione autonoma.",
+            type: "process", // process, tool, org
+            needIds: ['N3'],
+            status: "proposed"
         },
         {
-            id: "S2",
-            needIds: ["N1", "N2"],
-            title: "Flusso Comunicazione Bidirezionale",
-            description: "Implementare processo scambio informativo UT↔Produzione fluido, mappabile e reattivo.",
-            benefits: ["Lesson learned capitalizzate", "Riduzione errori", "Miglioramento continuo"]
+            id: 'S2',
+            title: "Loop di Feedback Bidirezionale",
+            description: "Canale strutturato per 'Lesson Learned' dalla Produzione all'UT.",
+            type: "process",
+            needIds: ['N2'],
+            status: "proposed"
         },
         {
-            id: "S3",
-            needIds: ["N4"],
-            title: "Sistema KPI e Dashboard",
-            description: "Definire metriche chiare: efficienza cicli, tempi risposta, NC da documentazione, milestone progetti.",
-            benefits: ["Cultura data-driven", "Responsabilità individuale", "Visibilità performance"]
-        },
-        {
-            id: "S4",
-            needIds: ["N1", "N3"],
+            id: 'S3',
             title: "Tavoli Inter-funzionali",
-            description: "Stabilire collaborazione strutturata con Commerciale, Produzione, Qualità per marginalità ed efficientamento.",
-            benefits: ["Impatto economico visibile", "Partner strategico", "Lean manufacturing"]
+            description: "Meeting periodici con Commerciale, Produzione e Qualità per allineamento.",
+            type: "org",
+            needIds: ['N1', 'N3'],
+            status: "proposed"
         }
     ],
+
     phases: [
         {
-            id: "F1",
-            name: "Avvio e Allineamento",
-            days: 1.5,
-            status: "not-started",
-            solutionIds: [],
+            id: 'P1',
+            name: "Fase 1: Avvio & Allineamento",
+            days: 30,
+            status: "in-progress",
             tasks: [
-                { id: "T1.1", name: "Kick-off con team UT + Leonardo", hours: 4, status: "pending", notes: "" },
-                { id: "T1.2", name: "Incontro preliminare Ramponi (30min)", hours: 2, status: "pending", notes: "" },
-                { id: "T1.3", name: "Distribuzione charter progetto", hours: 2, status: "pending", notes: "" },
-                { id: "T1.4", name: "Raccolta feedback iniziale stakeholder", hours: 4, status: "pending", notes: "" }
+                { id: 'T1.1', name: "Kick-off team UT + Leonardo", status: "pending", assignee: "Leonardo" },
+                { id: 'T1.2', name: "Incontro preliminare Ramponi (Sponsorship)", status: "pending", assignee: "Leonardo" },
+                { id: 'T1.3', name: "Diffusione Piano di Progetto (Charter)", status: "pending", assignee: "PM" }
             ]
         },
         {
-            id: "F2",
-            name: "Integrazione Agile",
-            days: 3,
-            status: "not-started",
-            solutionIds: ["S1"],
+            id: 'P2',
+            name: "Fase 2: Integrazione Agile",
+            days: 60,
+            status: "pending",
             tasks: [
-                { id: "T2.1", name: "Formazione team su metodologie Agile", hours: 8, status: "pending", notes: "" },
-                { id: "T2.2", name: "setup board Kanban/Scrum", hours: 4, status: "pending", notes: "" },
-                { id: "T2.3", name: "Sessioni pratiche su carichi correnti", hours: 8, status: "pending", notes: "" },
-                { id: "T2.4", name: "Definizione cerimonie (daily, retrospettive)", hours: 4, status: "pending", notes: "" }
+                { id: 'T2.1', name: "Formazione base metodologie Agile", status: "pending" },
+                { id: 'T2.2', name: "Workshop applicazione pratica ai carichi attuali", status: "pending" }
             ]
         },
         {
-            id: "F3",
-            name: "Ridisegno Flussi",
-            days: 3,
-            status: "not-started",
-            solutionIds: ["S2"],
+            id: 'P3',
+            name: "Fase 3: Ridisegno Flussi",
+            days: 45,
+            status: "pending",
             tasks: [
-                { id: "T3.1", name: "Mappatura processi AS-IS UT↔Produzione", hours: 6, status: "pending", notes: "" },
-                { id: "T3.2", name: "Identificazione colli di bottiglia", hours: 4, status: "pending", notes: "" },
-                { id: "T3.3", name: "Design flusso TO-BE bidirezionale", hours: 6, status: "pending", notes: "" },
-                { id: "T3.4", name: "Implementazione canali feedback", hours: 4, status: "pending", notes: "" },
-                { id: "T3.5", name: "Allineamento responsabilità NADCAP", hours: 4, status: "pending", notes: "" }
+                { id: 'T3.1', name: "Mappatura As-Is collo di bottiglia", status: "pending" },
+                { id: 'T3.2', name: "Design nuovo flusso bidirezionale (Loop Feedback)", status: "pending" }
             ]
         },
         {
-            id: "F4",
-            name: "KPI e Visibilità",
-            days: 2.5,
-            status: "not-started",
-            solutionIds: ["S3", "S4"],
+            id: 'P4',
+            name: "Fase 4: KPI & Visibilità Strategica",
+            days: 45,
+            status: "pending",
             tasks: [
-                { id: "T4.1", name: "Definizione KPI processo/qualità/progetto", hours: 6, status: "pending", notes: "" },
-                { id: "T4.2", name: "Setup dashboard monitoraggio", hours: 4, status: "pending", notes: "" },
-                { id: "T4.3", name: "Tavolo con Commerciale per marginalità", hours: 4, status: "pending", notes: "" },
-                { id: "T4.4", name: "Tavolo con Produzione/Qualità per Lean", hours: 4, status: "pending", notes: "" },
-                { id: "T4.5", name: "Documentazione e handover", hours: 2, status: "pending", notes: "" }
+                { id: 'T4.1', name: "Definizione KPI di Processo, Qualità, Progetto", status: "pending" },
+                { id: 'T4.2', name: "Avvio tavoli inter-funzionali (Comm/Prod/Qual)", status: "pending" }
             ]
         }
     ],
+
     kpis: {
-        process: [
-            { id: "KPI1", name: "Tempo redazione cicli", target: "-20%", current: null, unit: "giorni" },
-            { id: "KPI2", name: "Tempo risposta a Produzione", target: "<24h", current: null, unit: "ore" },
-            { id: "KPI3", name: "Lead time progetti", target: "-15%", current: null, unit: "giorni" }
+        efficiency: [
+            { id: 'K1', name: "Riduzione Lead Time Progetti", current: 0, target: 20, unit: '%' },
+            { id: 'K2', name: "Tempi Risposta a Produzione", current: 48, target: 24, unit: 'h' }
         ],
         quality: [
-            { id: "KPI4", name: "NC da documentazione tecnica", target: "-50%", current: null, unit: "numero" },
-            { id: "KPI5", name: "Feedback Produzione ricevuti", target: ">10/mese", current: null, unit: "numero" }
-        ],
-        project: [
-            { id: "KPI6", name: "NADCAP - Milestone rispettate", target: "100%", current: null, unit: "%" },
-            { id: "KPI7", name: "Part 21 - Avanzamento", target: "On track", current: null, unit: "stato" },
-            { id: "KPI8", name: "Piaggio - Presidio attivo", target: "Sì", current: null, unit: "bool" }
+            { id: 'K3', name: "NC da Documentazione Tecnica", current: 5, target: 0, unit: '#' },
+            { id: 'K4', name: "Feedback Implementati da Prod", current: 0, target: 10, unit: '#' }
         ]
     },
-    activityLog: []
+
+    activityLog: [
+        { type: 'info', message: 'Piano strategico caricato', timestamp: new Date().toISOString() }
+    ],
+    lastUpdated: new Date().toISOString()
 };

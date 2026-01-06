@@ -34,9 +34,9 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                     }}>🍌</div>
                     <div>
                         <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                            Vision: Trasformazione Ufficio Tecnico
+                            Vision: {data.project.name}
                         </h2>
-                        <p style={{ color: 'var(--accent-banana)', fontWeight: 600 }}>Da Centro di Costo a Motore di Innovazione</p>
+                        <p style={{ color: 'var(--accent-banana)', fontWeight: 600 }}>{data.project.vision}</p>
                     </div>
                 </div>
 
@@ -45,29 +45,28 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '12px' }}>
                         <h3 style={{ color: 'var(--text-secondary)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>1. Contesto & Sfide</h3>
                         <p style={{ color: 'var(--text-primary)', lineHeight: 1.6, fontSize: '14px' }}>
-                            Transizione da gestione "a compartimenti stagni" a modello integrato.
-                            Disconnessione storica tra attività quotidiane e obiettivi strategici.
-                            Necessità di allinearsi per obiettivi 2026.
+                            Ufficio Tecnico come fulcro nevralgico ma storicamente gestito a "compartimenti stagni".
+                            Necessità di allineamento per obiettivi 2026 (NADCAP, Part 21) e ottimizzazione catena del valore.
                         </p>
                     </div>
 
                     {/* Step 2: Criticità */}
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px solid var(--accent-red)' }}>
-                        <h3 style={{ color: 'var(--accent-red)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>2. Criticità Attuali</h3>
+                        <h3 style={{ color: 'var(--accent-red)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>2. Criticità (As-Is)</h3>
                         <ul style={{ color: 'var(--text-primary)', paddingLeft: '20px', lineHeight: 1.6, fontSize: '14px' }}>
-                            <li><strong>Flusso Unidirezionale</strong>: UT → Produzione senza feedback.</li>
-                            <li><strong>Rischio NADCAP</strong>: Gestione ambigua responsabilità.</li>
-                            <li><strong>Isolamento</strong>: UT percepito come corpo estraneo.</li>
+                            <li><strong>Unidirezionalità</strong>: UT → Produzione senza feedback ("Lesson Learned").</li>
+                            <li><strong>Rischio NADCAP</strong>: UT garante formale, Produzione gestore operativo.</li>
+                            <li><strong>Cultura</strong>: "Infallibilità" percepita e isolamento operativo.</li>
                         </ul>
                     </div>
 
                     {/* Step 3: Soluzione */}
                     <div style={{ padding: '20px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px solid var(--accent-banana)' }}>
-                        <h3 style={{ color: 'var(--accent-banana)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>3. La Strategia</h3>
+                        <h3 style={{ color: 'var(--accent-banana)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>3. Visione (To-Be)</h3>
                         <ul style={{ color: 'var(--text-primary)', paddingLeft: '20px', lineHeight: 1.6, fontSize: '14px' }}>
-                            <li>⚡️ <strong>Agile</strong>: Sbloccare potenziale proattivo.</li>
-                            <li>🔄 <strong>Bi-direzionale</strong>: Scambio fluido con Produzione.</li>
-                            <li>📊 <strong>KPI & Visibilità</strong>: Responsabilità e impatto.</li>
+                            <li>⚡️ <strong>Agile & Integrato</strong>: Unità coesa, reattiva e responsabile.</li>
+                            <li>🔄 <strong>Ciclo Chiuso</strong>: Comunicazione bidirezionale fluida.</li>
+                            <li>📊 <strong>Guidato dai Dati</strong>: KPI chiari per impatto su marginalità.</li>
                         </ul>
                     </div>
                 </div>
@@ -76,8 +75,8 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    {/* Activity Log - Moved Up for Importance */}
-                    <Card title="Obiettivi Strategici 2026" subtitle="Clicca per aggiornare lo stato">
+                    {/* Objectives */}
+                    <Card title="Obiettivi Strategici 2026" subtitle="Target aziendali imperativi">
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                             {data.project.objectives2026.map(obj => (
                                 <div key={obj.id} style={{
@@ -97,14 +96,15 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                                         <h4 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600 }}>{obj.name}</h4>
                                         <Badge type={obj.status}>{obj.status}</Badge>
                                     </div>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Scadenza: {obj.deadline}</p>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic', marginBottom: '6px' }}>{obj.description}</p>
+                                    <p style={{ color: 'var(--text-primary)', fontSize: '12px', fontWeight: 'bold' }}>Scadenza: {obj.deadline}</p>
                                 </div>
                             ))}
                         </div>
                     </Card>
 
-                    {/* Phases */}
-                    <Card title="Fasi del Progetto" subtitle={`${data.project.totalDays} giornate pianificate`}>
+                    {/* Phases - Roadmap */}
+                    <Card title="Roadmap di Trasformazione" subtitle="Fasi operative del piano">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {data.phases.map((phase, idx) => {
                                 const completedTasks = phase.tasks.filter(t => t.status === 'completed').length;
@@ -134,7 +134,13 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                                         </div>
                                         <div>
                                             <h4 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{phase.name}</h4>
-                                            <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{phase.days} giorni • {phase.tasks.length} task</p>
+                                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                {phase.tasks.map(task => (
+                                                    <span key={task.id} style={{ fontSize: '11px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                        {task.name}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div>
                                             <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>{completedTasks}/{phase.tasks.length}</p>
@@ -150,7 +156,7 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {/* Team Card */}
-                    <Card title="Il Team" subtitle="Persone e Ruoli">
+                    <Card title="Team & Stakeholder" subtitle="Sponsor e Esecutori">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {(data.project.team || []).map(member => (
                                 <div key={member.id} style={{
@@ -193,14 +199,14 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                     </Card>
 
                     {/* Activity Log */}
-                    <Card title="Attività Recenti" subtitle="Ultime modifiche">
+                    <Card title="Activity Log" subtitle="Real-time updates">
                         {data.activityLog.length === 0 ? (
                             <p style={{ color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
-                                Nessuna attività registrata
+                                Nessuna attività
                             </p>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
-                                {data.activityLog.slice(0, 10).map((log, idx) => (
+                                {data.activityLog.slice(0, 5).map((log, idx) => (
                                     <div key={idx} style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -210,12 +216,9 @@ const DashboardView = ({ data, updateObjectiveStatus, addTeamMember, deleteTeamM
                                         borderRadius: '6px'
                                     }}>
                                         <span style={{ fontSize: '14px' }}>
-                                            {log.type === 'task_update' ? '✅' : log.type === 'objective_update' ? '🎯' : '📊'}
+                                            {log.type === 'task_update' ? '✅' : log.type === 'objective_update' ? '🎯' : 'ℹ️'}
                                         </span>
-                                        <span style={{ color: 'var(--text-secondary)', fontSize: '13px', flex: 1 }}>{log.message}</span>
-                                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace" }}>
-                                            {new Date(log.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
+                                        <span style={{ color: 'var(--text-secondary)', fontSize: '12px', flex: 1 }}>{log.message}</span>
                                     </div>
                                 ))}
                             </div>

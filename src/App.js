@@ -190,6 +190,12 @@ export default function PlyformProjectTracker() {
     updateData(newData);
   };
 
+  const resetProjectData = async () => {
+    if (window.confirm("Attenzione: Questo sovrascriverà tutti i dati correnti con il Piano Strategico iniziale. Continuare?")) {
+      await updateData(initialProjectData);
+      alert("Piano Strategico caricato con successo!");
+    }
+  };
 
   // --- Existing Updaters ---
 
@@ -352,10 +358,25 @@ export default function PlyformProjectTracker() {
       </main>
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '16px 24px', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '16px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: 0 }}>
           {lastSaved && `Ultimo sync: ${new Date(lastSaved).toLocaleString('it-IT')}`}
         </p>
+        <button
+          onClick={resetProjectData}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--accent-red)',
+            fontSize: '10px',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            opacity: 0.7
+          }}
+        >
+          ⚠️ Reset / Carica Piano Iniziale
+        </button>
       </footer>
 
       <AIAssistant data={data} />
